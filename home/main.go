@@ -5,32 +5,24 @@ import (
 	"fmt"
 	"krakenApi"
 	"os"
-	"sort"
 	"strings"
 	"time"
-
-	"github.com/fatih/color"
 )
 
 func main() {
+
+	//
 
 	var krakenPairs = ReadPairsFromFile()
 
 	tick := time.Tick(5 * time.Second)
 	for range tick {
-		var result []string
+		krakenApi.NewList()
+		result := make(chan string)
 		for key, value := range krakenPairs {
-			result = append(result, krakenApi.GetKrakenData(key, value[0], value[1]))
+			go krakenApi.GetKrakenData(key, value[0], value[1], result)
+			fmt.Println(<-result)
 		}
-		sort.Strings(result)
-		for _, crypto := range result {
-			if strings.Contains(crypto, "-") {
-				fmt.Println(color.RedString(crypto))
-			} else {
-				fmt.Println(color.GreenString(crypto))
-			}
-		}
-
 	}
 }
 

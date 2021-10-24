@@ -13,7 +13,7 @@ import (
 
 var clear map[string]func()
 
-func GetKrakenData(cryptoName string, pair string, symbol string) string {
+func GetKrakenData(cryptoName string, pair string, symbol string, result chan string) {
 	var url string = fmt.Sprintf("https://api.kraken.com/0/public/Ticker?pair=%s", pair)
 	resp, err := http.Get(url)
 
@@ -30,8 +30,7 @@ func GetKrakenData(cryptoName string, pair string, symbol string) string {
 	json.Unmarshal(responseData, &response)
 
 	var currentValues = getPairValues(response.Result[symbol]["c"].([]interface{})[0].(string), response.Result[symbol]["o"].(string))
-	return fmt.Sprintf(`%s: %.2f $, Difference: %.2f percents`, cryptoName, currentValues[0], currentValues[1])
-
+	result <- fmt.Sprintf(`%s: %.2f $, Difference: %.2f percents`, cryptoName, currentValues[0], currentValues[1])
 }
 
 type KrakenResponse struct {
@@ -43,7 +42,6 @@ type PairMapper map[string]struct {
 }
 
 func getPairValues(lastTrade string, openingPrice string) [2]float64 {
-	callClear()
 	var result [2]float64
 	parsedLastTrade, errTrade := strconv.ParseFloat(lastTrade, 2)
 	parsedOpeningPrice, errOpening := strconv.ParseFloat(openingPrice, 2)
@@ -56,7 +54,7 @@ func getPairValues(lastTrade string, openingPrice string) [2]float64 {
 	return result
 }
 
-func callClear() {
+func NewList() {
 	value, ok := clear[runtime.GOOS]
 	if ok {
 		value()
