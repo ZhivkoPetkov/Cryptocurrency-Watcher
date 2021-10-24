@@ -33,9 +33,9 @@ func GetKrakenData(cryptoName string, pair string, symbol string, result chan st
 	var currentValues = getPairValues(response.Result[symbol]["c"].([]interface{})[0].(string), response.Result[symbol]["o"].(string))
 
 	if currentValues[1] < 0 {
-		result <- fmt.Sprintf(color.RedString(`%s: %.2f $, Difference: %.2f percents`, cryptoName, currentValues[0], currentValues[1]))
+		result <- fmt.Sprintf(color.RedString(`%-10s $%-10.2f 24 hs diff: %.2f percents`, cryptoName, currentValues[0], currentValues[1]))
 	} else {
-		result <- fmt.Sprintf(color.GreenString(`%s: %.2f $, Difference: %.2f percents`, cryptoName, currentValues[0], currentValues[1]))
+		result <- fmt.Sprintf(color.GreenString(`%-10s $%-10.2f 24 hs diff: %.2f percents`, cryptoName, currentValues[0], currentValues[1]))
 	}
 }
 

@@ -7,13 +7,13 @@ import (
 	"strings"
 )
 
-func CryptoPairs() map[string][]string {
+func CryptoPairs() []Pair {
 	file, err := os.Open(`../pairs.txt`)
 	if err != nil {
 		fmt.Println(`File with pairs cannot be open`)
 	}
 
-	krakenPairs := make(map[string][]string)
+	var krakenPairs []Pair
 
 	scanner := bufio.NewScanner(file)
 	scanner.Split(bufio.ScanLines)
@@ -22,8 +22,14 @@ func CryptoPairs() map[string][]string {
 		var row string
 		row = scanner.Text()
 		pairs = strings.Split(row, ",")
-		krakenPairs[pairs[2]] = []string{pairs[0], pairs[1]}
+		krakenPairs = append(krakenPairs, Pair{Name: pairs[2], ShortSymbol: pairs[0], LongSymbol: pairs[1]})
 	}
 	file.Close()
 	return krakenPairs
+}
+
+type Pair struct {
+	Name        string
+	ShortSymbol string
+	LongSymbol  string
 }

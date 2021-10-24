@@ -9,15 +9,22 @@ import (
 
 func main() {
 	var krakenPairs = pairReader.CryptoPairs()
+	channels := make([]chan string, len(krakenPairs))
+
+	for i := range krakenPairs {
+		channels[i] = make(chan string)
+	}
 
 	tick := time.Tick(5 * time.Second)
 	for range tick {
 		krakenApi.NewList()
-		result := make(chan string)
-		for key, value := range krakenPairs {
-			go krakenApi.GetKrakenData(key, value[0], value[1], result)
-			fmt.Println(<-result)
+
+		for i, pair := range krakenPairs {
+			go krakenApi.GetKrakenData(pair.Name, pair.ShortSymbol, pair.LongSymbol, channels[i])
 		}
-		close(result)
+
+		for _, value := range channels {
+			fmt.Println(<-value)
+		}
 	}
 }
