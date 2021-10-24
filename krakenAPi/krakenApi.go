@@ -3,6 +3,7 @@ package krakenApi
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/fatih/color"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -30,7 +31,12 @@ func GetKrakenData(cryptoName string, pair string, symbol string, result chan st
 	json.Unmarshal(responseData, &response)
 
 	var currentValues = getPairValues(response.Result[symbol]["c"].([]interface{})[0].(string), response.Result[symbol]["o"].(string))
-	result <- fmt.Sprintf(`%s: %.2f $, Difference: %.2f percents`, cryptoName, currentValues[0], currentValues[1])
+
+	if currentValues[1] < 0 {
+		result <- fmt.Sprintf(color.RedString(`%s: %.2f $, Difference: %.2f percents`, cryptoName, currentValues[0], currentValues[1]))
+	} else {
+		result <- fmt.Sprintf(color.GreenString(`%s: %.2f $, Difference: %.2f percents`, cryptoName, currentValues[0], currentValues[1]))
+	}
 }
 
 type KrakenResponse struct {
